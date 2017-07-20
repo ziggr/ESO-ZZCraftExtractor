@@ -1,0 +1,8 @@
+## Title: ZZCraftExtractor
+## Description: ZZCraftExtractor version 3.0.1
+## Author: ziggr
+## APIVersion: 100019
+## SavedVariables: ZZCraftExtractorVars
+
+ZZCraftExtractor.lua
+ZZCraftExtractor.xml
