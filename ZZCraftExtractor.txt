@@ -4,5 +4,12 @@
 ## APIVersion: 100019
 ## SavedVariables: ZZCraftExtractorVars
 
+Libs/LibStub/LibStub.lua
+Libs/LibLazyCrafting/LibLazyCrafting.lua
+Libs/LibLazyCrafting/Alchemy.lua
+Libs/LibLazyCrafting/Enchanting.lua
+Libs/LibLazyCrafting/Provisioning.lua
+Libs/LibLazyCrafting/Smithing.lua
+
 ZZCraftExtractor.lua
 ZZCraftExtractor.xml
