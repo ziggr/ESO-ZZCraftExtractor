@@ -10,6 +10,7 @@ Libs/LibLazyCrafting/Alchemy.lua
 Libs/LibLazyCrafting/Enchanting.lua
 Libs/LibLazyCrafting/Provisioning.lua
 Libs/LibLazyCrafting/Smithing.lua
+Libs/LibCraftId/LibCraftId.lua
 
 ZZCraftExtractor.lua
 ZZCraftExtractor.xml
