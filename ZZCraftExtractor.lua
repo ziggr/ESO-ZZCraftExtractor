@@ -1,7 +1,17 @@
--- ZZCraftExtractor: Is this Maaster Writ worth doing?
+-- ZZCraftExtractor: Extract itemId values for every single craftable
+--                   equipment item within the game.
 --
--- In a master writ's tooltip, include the material cost for that writ
--- as both a gold total, and a gold per writ voucher reward.
+-- When this add-on is loaded, each time you interact with a BS/CL/WW crafting
+-- station, the add-on scans all ~14 items craftable at this station and
+-- records the itemId numbers for each item, each trait, into a SavedVariables
+-- file.
+--
+-- If you visit EVERY single crafting station in Tamriel (3 stations x ~40 set
+-- bonuses), you'll have a complete list of every single craftable itemID.
+--
+-- Uses a couple library functions from LibLazyCrafter. Does not actually
+-- craft anything with LibLazyCrafter.
+--
 
 ZZCraftExtractor = {}
 
@@ -40,53 +50,53 @@ local ARMOR_TRAITS    = {
 local STATION_WORK = {
   [CRAFTING_TYPE_BLACKSMITHING] = {
     station_work = {
-                     { pattern_index =  1, mat_ct = 3, traits = WEAPON_TRAITS } -- 1h axe
-                   , { pattern_index =  2, mat_ct = 3, traits = WEAPON_TRAITS } -- 1h mace
-                   , { pattern_index =  3, mat_ct = 3, traits = WEAPON_TRAITS } -- 1h sword
-                   , { pattern_index =  4, mat_ct = 5, traits = WEAPON_TRAITS } -- 2h battleaxe
-                   , { pattern_index =  6, mat_ct = 5, traits = WEAPON_TRAITS } -- 2h greatsword
-                   , { pattern_index =  5, mat_ct = 5, traits = WEAPON_TRAITS } -- 2h maul
-                   , { pattern_index =  7, mat_ct = 2, traits = WEAPON_TRAITS } -- dagger
-                   , { pattern_index =  8, mat_ct = 7, traits = ARMOR_TRAITS  } -- heavy cuirass
-                   , { pattern_index =  9, mat_ct = 5, traits = ARMOR_TRAITS  } -- heavy sabatons
-                   , { pattern_index = 10, mat_ct = 5, traits = ARMOR_TRAITS  } -- heavy gauntlets
-                   , { pattern_index = 11, mat_ct = 5, traits = ARMOR_TRAITS  } -- heavy helm
-                   , { pattern_index = 12, mat_ct = 6, traits = ARMOR_TRAITS  } -- heavy greaves
-                   , { pattern_index = 13, mat_ct = 5, traits = ARMOR_TRAITS  } -- heavy pauldron
-                   , { pattern_index = 14, mat_ct = 5, traits = ARMOR_TRAITS  } -- heavy girdle
-                   }
+          { pattern_index =  1, mat_ct = 3, traits = WEAPON_TRAITS } -- 1h axe
+        , { pattern_index =  2, mat_ct = 3, traits = WEAPON_TRAITS } -- 1h mace
+        , { pattern_index =  3, mat_ct = 3, traits = WEAPON_TRAITS } -- 1h sword
+        , { pattern_index =  4, mat_ct = 5, traits = WEAPON_TRAITS } -- 2h battleaxe
+        , { pattern_index =  6, mat_ct = 5, traits = WEAPON_TRAITS } -- 2h greatsword
+        , { pattern_index =  5, mat_ct = 5, traits = WEAPON_TRAITS } -- 2h maul
+        , { pattern_index =  7, mat_ct = 2, traits = WEAPON_TRAITS } -- dagger
+        , { pattern_index =  8, mat_ct = 7, traits = ARMOR_TRAITS  } -- heavy cuirass
+        , { pattern_index =  9, mat_ct = 5, traits = ARMOR_TRAITS  } -- heavy sabatons
+        , { pattern_index = 10, mat_ct = 5, traits = ARMOR_TRAITS  } -- heavy gauntlets
+        , { pattern_index = 11, mat_ct = 5, traits = ARMOR_TRAITS  } -- heavy helm
+        , { pattern_index = 12, mat_ct = 6, traits = ARMOR_TRAITS  } -- heavy greaves
+        , { pattern_index = 13, mat_ct = 5, traits = ARMOR_TRAITS  } -- heavy pauldron
+        , { pattern_index = 14, mat_ct = 5, traits = ARMOR_TRAITS  } -- heavy girdle
+        }
 , set_bonus_pattern_offset = 14
 }
 , [CRAFTING_TYPE_CLOTHIER     ] = {
     station_work = {
-                     { pattern_index =  1, mat_ct = 7, traits = ARMOR_TRAITS  } -- light robe
-                   , { pattern_index =  2, mat_ct = 7, traits = ARMOR_TRAITS  } -- light jerkin
-                   , { pattern_index =  3, mat_ct = 5, traits = ARMOR_TRAITS  } -- light shoes
-                   , { pattern_index =  4, mat_ct = 5, traits = ARMOR_TRAITS  } -- light gloves
-                   , { pattern_index =  5, mat_ct = 5, traits = ARMOR_TRAITS  } -- light hat
-                   , { pattern_index =  6, mat_ct = 6, traits = ARMOR_TRAITS  } -- light breeches
-                   , { pattern_index =  7, mat_ct = 5, traits = ARMOR_TRAITS  } -- light epaulets
-                   , { pattern_index =  8, mat_ct = 5, traits = ARMOR_TRAITS  } -- light sash
-                   , { pattern_index =  9, mat_ct = 7, traits = ARMOR_TRAITS  } -- medium jack
-                   , { pattern_index = 10, mat_ct = 5, traits = ARMOR_TRAITS  } -- medium boots
-                   , { pattern_index = 11, mat_ct = 5, traits = ARMOR_TRAITS  } -- medium bracers
-                   , { pattern_index = 12, mat_ct = 5, traits = ARMOR_TRAITS  } -- medium helmet
-                   , { pattern_index = 13, mat_ct = 6, traits = ARMOR_TRAITS  } -- medium guards
-                   , { pattern_index = 14, mat_ct = 5, traits = ARMOR_TRAITS  } -- medium arm cops
-                   , { pattern_index = 15, mat_ct = 5, traits = ARMOR_TRAITS  } -- medium belt
-                   }
+          { pattern_index =  1, mat_ct = 7, traits = ARMOR_TRAITS  } -- light robe
+        , { pattern_index =  2, mat_ct = 7, traits = ARMOR_TRAITS  } -- light jerkin
+        , { pattern_index =  3, mat_ct = 5, traits = ARMOR_TRAITS  } -- light shoes
+        , { pattern_index =  4, mat_ct = 5, traits = ARMOR_TRAITS  } -- light gloves
+        , { pattern_index =  5, mat_ct = 5, traits = ARMOR_TRAITS  } -- light hat
+        , { pattern_index =  6, mat_ct = 6, traits = ARMOR_TRAITS  } -- light breeches
+        , { pattern_index =  7, mat_ct = 5, traits = ARMOR_TRAITS  } -- light epaulets
+        , { pattern_index =  8, mat_ct = 5, traits = ARMOR_TRAITS  } -- light sash
+        , { pattern_index =  9, mat_ct = 7, traits = ARMOR_TRAITS  } -- medium jack
+        , { pattern_index = 10, mat_ct = 5, traits = ARMOR_TRAITS  } -- medium boots
+        , { pattern_index = 11, mat_ct = 5, traits = ARMOR_TRAITS  } -- medium bracers
+        , { pattern_index = 12, mat_ct = 5, traits = ARMOR_TRAITS  } -- medium helmet
+        , { pattern_index = 13, mat_ct = 6, traits = ARMOR_TRAITS  } -- medium guards
+        , { pattern_index = 14, mat_ct = 5, traits = ARMOR_TRAITS  } -- medium arm cops
+        , { pattern_index = 15, mat_ct = 5, traits = ARMOR_TRAITS  } -- medium belt
+        }
 , set_bonus_pattern_offset = 15
 }
 
 , [CRAFTING_TYPE_WOODWORKING  ] = {
     station_work = {
-                     { pattern_index =  1, mat_ct = 3, traits = WEAPON_TRAITS } -- bow
-                   , { pattern_index =  3, mat_ct = 3, traits = WEAPON_TRAITS } -- inferno staff
-                   , { pattern_index =  4, mat_ct = 3, traits = WEAPON_TRAITS } -- frost staff
-                   , { pattern_index =  5, mat_ct = 3, traits = WEAPON_TRAITS } -- lightning staff
-                   , { pattern_index =  6, mat_ct = 3, traits = WEAPON_TRAITS } -- healing staff
-                   , { pattern_index =  2, mat_ct = 6, traits = ARMOR_TRAITS  } -- shield
-                   }
+          { pattern_index =  1, mat_ct = 3, traits = WEAPON_TRAITS } -- bow
+        , { pattern_index =  3, mat_ct = 3, traits = WEAPON_TRAITS } -- inferno staff
+        , { pattern_index =  4, mat_ct = 3, traits = WEAPON_TRAITS } -- frost staff
+        , { pattern_index =  5, mat_ct = 3, traits = WEAPON_TRAITS } -- lightning staff
+        , { pattern_index =  6, mat_ct = 3, traits = WEAPON_TRAITS } -- healing staff
+        , { pattern_index =  2, mat_ct = 6, traits = ARMOR_TRAITS  } -- shield
+        }
 , set_bonus_pattern_offset = 6
 }
 }
@@ -96,7 +106,8 @@ function ZZCraftExtractor.OnStationInteract(event, station)
     local self = ZZCraftExtractor
     local llc = self:GetLLC()
     local set_index = llc:GetCurrentSetInteractionIndex()
-    d("Hello, Station! station:"..tostring(station).." set:"..tostring(set_index))
+    -- d("Hello, Station! station:"..tostring(station)
+    --   .." set:"..tostring(set_index))
 
     local item_id_list = self:BuildItemIdList(station, set_index)
     if not item_id_list then
@@ -108,12 +119,14 @@ function ZZCraftExtractor.OnStationInteract(event, station)
     local iid = self.savedVariables.item_id
     if not iid[set_index] then iid[set_index] = {} end
     iid[set_index][station] = item_id_list
-    d("Done with station:"..tostring(station).." set:"..tostring(set_index) .. " got:"..tostring(#item_id_list))
+    d("Done with station:"..tostring(station)
+        .." set:"..tostring(set_index)
+        .." got:"..tostring(#item_id_list))
 
-                        -- Special case for Armor Master: also build
-                        -- the non-set-bonus table when you visit an
-                        -- Armor Master table, just because the BBC crafting
-                        -- boardwalk lacks a plain table.
+                        -- Special case for Armor Master: also build the non-
+                        -- set-bonus table when you visit an Armor Master
+                        -- table, just because the BBC crafting boardwalk lacks
+                        -- a plain table.
     if set_index == 27 then
         local item_id_list = self:BuildItemIdList(station, 0)
         if not iid["none"] then iid["none"] = {} end
@@ -140,16 +153,15 @@ function ZZCraftExtractor:BuildItemIdList(station, set_index)
 
     local item_id_list = {}
     local material_index = 1    -- iron/jute/maple
-    local motif_id       = 1     -- Breton
+    local motif_id       = 1    -- Breton
     local link_style    = LINK_STYLE_DEFAULT
 
-                        -- For each of the up to 15 different items
-                        -- you can craft at this station, generate a single
-                        -- tab-delimited
-                        -- line with all of that item's itemId numbers,
-                        -- one for each possible trait, starting with no trait.
-                        -- Just to make the file easier to read, also append
-                        -- the item's name.
+                        -- For each of the up to 15 different items you can
+                        -- craft at this station, generate a single tab-
+                        -- delimited line. Line contains each of that item's
+                        -- itemId numbers, one for each possible trait,
+                        -- starting with no trait. Just to make the file easier
+                        -- to read, line ends  with the item's name.
     for i,sw in ipairs(station_work) do
         local pattern_index = sw.pattern_index
         local traits        = sw.traits
@@ -197,12 +209,10 @@ function ZZCraftExtractor:BuildItemIdList(station, set_index)
     return item_id_list
 end
 
-
 function ZZCraftExtractor:GetLLC()
     if self.LibLazyCrafting then
         return self.LibLazyCrafting
     end
-
 
     local lib = LibStub:GetLibrary("LibLazyCrafting", 0.4)
     self.LibLazyCrafting = lib:AddRequestingAddon(
@@ -214,14 +224,13 @@ function ZZCraftExtractor:GetLLC()
     return self.LibLazyCrafting
 end
 
--- This function COULD become public in the LibLazyCrafting API, but today
--- it is not, so time for some copy-and-paste "editor inheritance".
-function GetItemIDFromLink(itemLink) return tonumber(string.match(itemLink,"|H%d:item:(%d+)")) end
-
 function ZZCraftExtractor_LLCCompleted()
     -- NOP never used
 end
 
+-- This function COULD become public in the LibLazyCrafting API, but today
+-- it is not, so time for some copy-and-paste "editor inheritance".
+function GetItemIDFromLink(itemLink) return tonumber(string.match(itemLink,"|H%d:item:(%d+)")) end
 
 -- Init ----------------------------------------------------------------------
 
@@ -242,7 +251,6 @@ function ZZCraftExtractor:Initialize()
 
     --EVENT_MANAGER:UnregisterForEvent(self.name, EVENT_ADD_ON_LOADED)
 end
-
 
 -- Postamble -----------------------------------------------------------------
 
