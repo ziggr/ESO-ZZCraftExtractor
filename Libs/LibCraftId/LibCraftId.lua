@@ -62,7 +62,7 @@ end
 -- Convert an itemId to the same four parameters as ToItemId():
 --
 -- { set_index
--- , station_index
+-- , crafting_type
 -- , pattern_index
 -- , trait_id
 -- }
@@ -101,8 +101,8 @@ function LibCraftId.UnpackTable()
         if set_index == "none" or set_index < 2 then
             set_index = nil
         end
-        for station_index, ss in pairs(s) do
-            for pattern_index, row_string in pairs(ss) do
+        for crafting_type, ctdata in pairs(s) do
+            for pattern_index, row_string in pairs(ctdata) do
                 cells = { zo_strsplit("\t", row_string) }
                 for i = 1,#cells - 1 do
                     local item_id  = tonumber(cells[i])
@@ -113,10 +113,10 @@ function LibCraftId.UnpackTable()
                     local trait_index = i - 1
                     local trait_id = nil
                     if 0 < trait_index then
-                        trait_id = self.TRAITS[station_index][pattern_index][trait_index]
+                        trait_id = self.TRAITS[crafting_type][pattern_index][trait_index]
                     end
                     tuple = { set_index     = set_index
-                            , station_index = station_index
+                            , crafting_type = crafting_type
                             , pattern_index = pattern_index
                             , trait_id      = trait_id
                             }
@@ -288,7 +288,7 @@ LibCraftId.TRAITS =
 -- Begin giant itemId dump extracted from crafting stations ------------------
 -- index order:
 -- set_index
---      station_index  (always 1=BS, 2=CL, 6=WW)
+--      crafting_type  (always 1=BS, 2=CL, 6=WW)
 --          pattern_index
 --              10 tab-delimited item_id values, for no-trait and then the nine traits
 --              string item name (not used here, just retained as documentation so that
