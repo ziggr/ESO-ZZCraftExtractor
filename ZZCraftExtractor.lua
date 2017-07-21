@@ -200,7 +200,7 @@ function ZZCraftExtractor:BuildItemIdList(station, set_index)
 
         local fmt_cells = {}
         for _, c in ipairs(cells) do
-            table.insert(fmt_cells, string.format("%7d", c))
+            table.insert(fmt_cells, string.format("%d", c))
         end
         table.insert(fmt_cells, row_name)
         local row_string = table.concat(fmt_cells, "\t")
