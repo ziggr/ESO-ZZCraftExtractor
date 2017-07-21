@@ -101,7 +101,6 @@ local STATION_WORK = {
 }
 }
 
-
 function ZZCraftExtractor.OnStationInteract(event, station)
     local self = ZZCraftExtractor
     local llc = self:GetLLC()
@@ -204,7 +203,7 @@ function ZZCraftExtractor:BuildItemIdList(station, set_index)
         end
         table.insert(fmt_cells, row_name)
         local row_string = table.concat(fmt_cells, "\t")
-        table.insert(item_id_list, row_string)
+        item_id_list[pattern_index] = row_string
     end
     return item_id_list
 end
@@ -231,6 +230,175 @@ end
 -- This function COULD become public in the LibLazyCrafting API, but today
 -- it is not, so time for some copy-and-paste "editor inheritance".
 function GetItemIDFromLink(itemLink) return tonumber(string.match(itemLink,"|H%d:item:(%d+)")) end
+
+-- API Proposal --------------------------------------------------------------
+
+ZZCraftExtractor.TRAITS_WEAPON_TO_INDEX = {
+    [ITEM_TRAIT_TYPE_WEAPON_POWERED    ] = 1
+,   [ITEM_TRAIT_TYPE_WEAPON_CHARGED    ] = 2
+,   [ITEM_TRAIT_TYPE_WEAPON_PRECISE    ] = 3
+,   [ITEM_TRAIT_TYPE_WEAPON_INFUSED    ] = 4
+,   [ITEM_TRAIT_TYPE_WEAPON_DEFENDING  ] = 5
+,   [ITEM_TRAIT_TYPE_WEAPON_TRAINING   ] = 6
+,   [ITEM_TRAIT_TYPE_WEAPON_SHARPENED  ] = 7
+,   [ITEM_TRAIT_TYPE_WEAPON_DECISIVE   ] = 8   -- nee weighted
+,   [ITEM_TRAIT_TYPE_WEAPON_NIRNHONED  ] = 9
+}
+
+ZZCraftExtractor.TRAITS_ARMOR_TO_INDEX    = {
+    [ITEM_TRAIT_TYPE_ARMOR_STURDY      ] = 1
+,   [ITEM_TRAIT_TYPE_ARMOR_IMPENETRABLE] = 2
+,   [ITEM_TRAIT_TYPE_ARMOR_REINFORCED  ] = 3
+,   [ITEM_TRAIT_TYPE_ARMOR_WELL_FITTED ] = 4
+,   [ITEM_TRAIT_TYPE_ARMOR_TRAINING    ] = 5
+,   [ITEM_TRAIT_TYPE_ARMOR_INFUSED     ] = 6
+,   [ITEM_TRAIT_TYPE_ARMOR_PROSPEROUS  ] = 7  -- nee exploration
+,   [ITEM_TRAIT_TYPE_ARMOR_DIVINES     ] = 8
+,   [ITEM_TRAIT_TYPE_ARMOR_NIRNHONED   ] = 9
+}
+
+-- Expected values for pattern_index
+ZZCraftExtractor.PATTERN_INDEX_1H_AXE           =  1
+ZZCraftExtractor.PATTERN_INDEX_1H_MACE          =  2
+ZZCraftExtractor.PATTERN_INDEX_1H_SWORD         =  3
+ZZCraftExtractor.PATTERN_INDEX_2H_BATTLEAXE     =  4
+ZZCraftExtractor.PATTERN_INDEX_2H_GREATSWORD    =  6
+ZZCraftExtractor.PATTERN_INDEX_2H_MAUL          =  5
+ZZCraftExtractor.PATTERN_INDEX_DAGGER           =  7
+
+ZZCraftExtractor.PATTERN_INDEX_HEAVY_CUIRASS    =  8
+ZZCraftExtractor.PATTERN_INDEX_HEAVY_SABATONS   =  9
+ZZCraftExtractor.PATTERN_INDEX_HEAVY_GAUNTLETS  = 10
+ZZCraftExtractor.PATTERN_INDEX_HEAVY_HELM       = 11
+ZZCraftExtractor.PATTERN_INDEX_HEAVY_GREAVES    = 12
+ZZCraftExtractor.PATTERN_INDEX_HEAVY_PAULDRON   = 13
+ZZCraftExtractor.PATTERN_INDEX_HEAVY_GIRDLE     = 14
+
+ZZCraftExtractor.PATTERN_INDEX_LIGHT_ROBE       =  1
+ZZCraftExtractor.PATTERN_INDEX_LIGHT_JERKIN     =  2
+ZZCraftExtractor.PATTERN_INDEX_LIGHT_SHOES      =  3
+ZZCraftExtractor.PATTERN_INDEX_LIGHT_GLOVES     =  4
+ZZCraftExtractor.PATTERN_INDEX_LIGHT_HAT        =  5
+ZZCraftExtractor.PATTERN_INDEX_LIGHT_BREECHES   =  6
+ZZCraftExtractor.PATTERN_INDEX_LIGHT_EPAULETS   =  7
+ZZCraftExtractor.PATTERN_INDEX_LIGHT_SASH       =  8
+
+ZZCraftExtractor.PATTERN_INDEX_MEDIUM_JACK      =  9
+ZZCraftExtractor.PATTERN_INDEX_MEDIUM_BOOTS     = 10
+ZZCraftExtractor.PATTERN_INDEX_MEDIUM_BRACERS   = 11
+ZZCraftExtractor.PATTERN_INDEX_MEDIUM_HELMET    = 12
+ZZCraftExtractor.PATTERN_INDEX_MEDIUM_GUARDS    = 13
+ZZCraftExtractor.PATTERN_INDEX_MEDIUM_ARM_COPS  = 14
+ZZCraftExtractor.PATTERN_INDEX_MEDIUM_BELT      = 15
+
+ZZCraftExtractor.PATTERN_INDEX_BOW              =  1
+ZZCraftExtractor.PATTERN_INDEX_INFERNO_STAFF    =  3
+ZZCraftExtractor.PATTERN_INDEX_FROST_STAFF      =  4
+ZZCraftExtractor.PATTERN_INDEX_LIGHTNING_STAFF  =  5
+ZZCraftExtractor.PATTERN_INDEX_RESTO_STAFF      =  6
+
+ZZCraftExtractor.PATTERN_INDEX_SHIELD           =  2
+
+-- Expected values for set_index
+ZZCraftExtractor.SET_INDEX_NONE                      =  1
+ZZCraftExtractor.SET_INDEX_DEATHS_WIND               =  2
+ZZCraftExtractor.SET_INDEX_NIGHTS_SILENCE            =  3
+ZZCraftExtractor.SET_INDEX_ASHEN_GRIP                =  4
+ZZCraftExtractor.SET_INDEX_TORUGS_PACT               =  5
+ZZCraftExtractor.SET_INDEX_TWILIGHTS_EMBRACE         =  6
+ZZCraftExtractor.SET_INDEX_ARMOR_OF_THE_SEDUCER      =  7
+ZZCraftExtractor.SET_INDEX_MAGNUS_GIFT               =  8
+ZZCraftExtractor.SET_INDEX_HIST_BARK                 =  9
+ZZCraftExtractor.SET_INDEX_WHITESTRAKES_RETRIBUTION  = 10
+ZZCraftExtractor.SET_INDEX_VAMPIRES_KISS             = 11
+ZZCraftExtractor.SET_INDEX_SONG_OF_LAMAE             = 12
+ZZCraftExtractor.SET_INDEX_ALESSIAS_BULWARK          = 13
+ZZCraftExtractor.SET_INDEX_NIGHT_MOTHERS_GAZE        = 14
+ZZCraftExtractor.SET_INDEX_WILLOWS_PATH              = 15
+ZZCraftExtractor.SET_INDEX_HUNDINGS_RAGE             = 16
+ZZCraftExtractor.SET_INDEX_KAGRENACS_HOPE            = 17
+ZZCraftExtractor.SET_INDEX_ORGNUMS_SCALES            = 18
+ZZCraftExtractor.SET_INDEX_EYES_OF_MARA              = 19
+ZZCraftExtractor.SET_INDEX_SHALIDORS_CURSE           = 20
+ZZCraftExtractor.SET_INDEX_OBLIVIONS_FOE             = 21
+ZZCraftExtractor.SET_INDEX_SPECTRES_EYE              = 22
+ZZCraftExtractor.SET_INDEX_WAY_OF_THE_ARENA          = 23
+ZZCraftExtractor.SET_INDEX_TWICE_BORN_STAR           = 24
+ZZCraftExtractor.SET_INDEX_NOBLES_CONQUEST           = 25
+ZZCraftExtractor.SET_INDEX_REDISTRIBUTOR             = 26
+ZZCraftExtractor.SET_INDEX_ARMOR_MASTER              = 27
+ZZCraftExtractor.SET_INDEX_TRIAL_BY_FIRE             = 28
+ZZCraftExtractor.SET_INDEX_LAW_OF_JULIANOS           = 29
+ZZCraftExtractor.SET_INDEX_MORKULDIN                 = 30
+ZZCraftExtractor.SET_INDEX_TAVAS_FAVOR               = 31
+ZZCraftExtractor.SET_INDEX_CLEVER_ALCHEMIST          = 32
+ZZCraftExtractor.SET_INDEX_ETERNAL_HUNT              = 33
+ZZCraftExtractor.SET_INDEX_KVATCH_GLADIATOR          = 34
+ZZCraftExtractor.SET_INDEX_VARENS_LEGACY             = 35
+ZZCraftExtractor.SET_INDEX_PELINALS_APTITUDE         = 36
+
+function ZZCraftExtractor.ReportError(s)
+    d("ZZCraftExtractor:" .. s)
+    return nil
+end
+
+-- Return the itemId of a craftable item.
+--
+-- crafting_type: one of CRAFTING_TYPE_BLACKSMITHING
+--                       CRAFTING_TYPE_CLOTHIER
+--                       CRAFTING_TYPE_WOODWORKING
+--
+-- set_index: nil/0/1 for no set bonus
+--            2..39
+--            one of SET_INDEX_XXX above
+--
+-- pattern_index: 1..15
+--            one of PATTERN_INDEX_XXX above
+--
+-- trait_id:  nil/0 for no trait
+--            one of ITEM_TRAIT_TYPE_XXX
+--
+function ZZCraftExtractor.ToItemId(crafting_type, set_index, pattern_index, trait_id)
+    self = ZZCraftExtractor
+
+                        -- Be pointlessly permissive in what we accept.
+    local trait_index = 0
+    if trait_id and trait_id > 0 then
+        trait_index = self.TRAITS_WEAPON_TO_INDEX[trait_id]
+        if not trait_index then
+            trait_index = self.TRAITS_ARMOR_TO_INDEX[trait_id]
+        end
+        if not trait_index then trait_index = 0 end
+    end
+
+    local set_indexx = "none"
+    if set_index and set_index > 2 then
+        set_indexx = set_index
+    end
+
+    local item_id_table = self.savedVariables["item_id"]
+    local set_to_stations = item_id_table[set_indexx]
+    if not set_to_stations then
+        return self.ReportError("unknown set_index:"..tostring(set_index))
+    end
+
+    local station_to_patterns = set_to_stations[crafting_type]
+    if not station_to_patterns then
+        return self.ReportError("unknown station:"..tostring(crafting_type)
+                 .."  for set_index:"..tostring(set_index))
+    end
+
+    local row_string = station_to_patterns[pattern_index]
+    if not row_string then
+        return self.ReportError("unknown pattern_index:"..tostring(pattern_index)
+                 .."  for station:"..tostring(crafting_type)
+                 .."  set_index:"..tostring(set_index))
+    end
+
+    local cells = { zo_strsplit("\t", row_string) }
+    local item_id_str = cells[trait_index + 1]
+    return tonumber(item_id_str)
+end
 
 -- Init ----------------------------------------------------------------------
 

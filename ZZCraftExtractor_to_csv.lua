@@ -50,10 +50,10 @@ function TableItemId(item_id_table)
     for set_id, station_list in pairs(item_id_table) do
         set_ct = set_ct + 1
         for station_id, line_list in pairs(station_list) do
-            for line_no, line in ipairs(line_list) do
+            for pattern_index, line in pairs(line_list) do
                 OUT_FILE:write(tostring(set_id)..","
                             ..tostring(station_id)..","
-                            ..tostring(line_no)..",")
+                            ..tostring(pattern_index)..",")
                 cells = split(line, "\t")
                 for i = 1, (#cells - 1) do
                     c = ltrim(cells[i])
@@ -67,7 +67,7 @@ function TableItemId(item_id_table)
     print("set_ct:"..tostring(set_ct))
 end
 
-OUT_FILE:write('"#set","station","line num","no trait","powered","charged","precise","infused","defending","training","sharpened","decisive","nirnhoned","item name"\n')
+OUT_FILE:write('"#set","station","pattern index","no trait","powered","charged","precise","infused","defending","training","sharpened","decisive","nirnhoned","item name"\n')
 OUT_FILE:write('"#","","","","sturdy","impenetrable","reinforced","well-fitted","training","infused","prosperous","divines","nirnhoned",""\n')
 -- For each account
 for k, v in pairs(ZZCraftExtractorVars["Default"]) do
