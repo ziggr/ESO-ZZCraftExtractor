@@ -8,3 +8,7 @@ get:
 	cp -f /Volumes/Elder\ Scrolls\ Online/live/SavedVariables/ZZCraftExtractor.lua ../../SavedVariables/
 	cp -f ../../SavedVariables/ZZCraftExtractor.lua data/
 
+csv:
+	lua ZZCraftExtractor_to_csv.lua
+	cp ../../SavedVariables/ZZCraftExtractor.csv data/
+
