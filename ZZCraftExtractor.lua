@@ -341,6 +341,12 @@ ZZCraftExtractor.SET_INDEX_ETERNAL_HUNT              = 33
 ZZCraftExtractor.SET_INDEX_KVATCH_GLADIATOR          = 34
 ZZCraftExtractor.SET_INDEX_VARENS_LEGACY             = 35
 ZZCraftExtractor.SET_INDEX_PELINALS_APTITUDE         = 36
+ZZCraftExtractor.SET_INDEX_ASSASSINS_GUILE           = 37
+ZZCraftExtractor.SET_INDEX_SHACKLEBREAKER            = 38
+ZZCraftExtractor.SET_INDEX_DAEDRIC_TRICKERY          = 39
+ZZCraftExtractor.SET_INDEX_MECHANICAL_ACUITY         = 40
+ZZCraftExtractor.SET_INDEX_INNATE_AXIOM              = 41
+ZZCraftExtractor.SET_INDEX_FORTIFIED_BRASS           = 42
 
 function ZZCraftExtractor.ReportError(s)
     d("ZZCraftExtractor:" .. s)
