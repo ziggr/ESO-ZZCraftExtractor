@@ -13,3 +13,8 @@ csv:
 	lua ZZCraftExtractor_to_csv.lua
 	cp ../../SavedVariables/ZZCraftExtractor.csv data/
 
+setindex:
+	lua ZZCraftExtractor_to_LibSetIndex.lua
+	# see data/SetIndex.lua
+
+
