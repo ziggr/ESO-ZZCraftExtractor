@@ -105,6 +105,11 @@ function ZZCraftExtractor.OnStationInteract(event, station)
     local self = ZZCraftExtractor
     local llc = self:GetLLC()
     local set_index = llc:GetCurrentSetInteractionIndex()
+if not set_index then
+    d("No set_index")
+    return
+end
+
     -- d("Hello, Station! station:"..tostring(station)
     --   .." set:"..tostring(set_index))
 

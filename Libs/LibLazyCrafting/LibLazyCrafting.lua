@@ -1,27 +1,26 @@
---[[
-Author: Dolgubon
-Filename: LibLazyCrafting.lua
-Version: 0.1
-
-This is a work in progress.
-]]--
-
-------------------
---NOTES
--- Should Legendary upgrading be attempted? Is the risk worth it?
--- How to structure requests, and internal tables
--- What would addon developers want, to be able to interact with the library?
+-----------------------------------------------------------------------------------
+-- Library Name: LibLazyCrafting (LLC)
+-- Creator: Dolgubon (Joseph Heinzle)
+-- Library Ideal: Allow addons to craft anything, anywhere
+-- Library Creation Date: December, 2016
+-- Publication Date: Febuary 5, 2017
+--
+-- File Name: LibLazyCrafting.lua
+-- File Description: Contains the main functions of LLC, uncluding the queue and initialization functions
+-- Load Order Requirements: Before all other library files
+--
+-----------------------------------------------------------------------------------
 
 -- Initialize libraries
 
 local function dbug(...)
-	if not DolgubonDebugRunningDebugString then return end
-	DolgubonDebugRunningDebugString(...)
+	--DolgubonDebugRunningDebugString(...)
 end
 local libLoaded
-local LIB_NAME, VERSION = "LibLazyCrafting", 0.4
+local LIB_NAME, VERSION = "LibLazyCrafting", 1.5
 local LibLazyCrafting, oldminor = LibStub:NewLibrary(LIB_NAME, VERSION)
 if not LibLazyCrafting then return end
+local LLC = LibLazyCrafting
 
 LibLazyCrafting.craftInteractionTables =
 {
@@ -34,6 +33,26 @@ LibLazyCrafting.craftInteractionTables =
 	}
 }
 
+
+LLC.widgets = LLC.widgets or {}
+local widgets = LLC.widgets
+
+--METHOD: REGISTER WIDGET--
+--each widget has its version checked before loading,
+--so we only have the most recent one in memory
+--Usage:
+--	widgetType = "string"; the type of widget being registered
+--	widgetVersion = integer; the widget's version number
+--	From LibAddonMenu
+
+function LibLazyCrafting:RegisterWidget(widgetType, widgetVersion)
+	if widgets[widgetType] and widgets[widgetType] >= widgetVersion then
+		return false
+	else
+		widgets[widgetType] = widgetVersion
+		return true
+	end
+end
 
 
 -- Index starts at 0 because that's how many upgrades are needed.
@@ -128,6 +147,8 @@ craftingQueue =
 }
 craftingQueue["ExampleAddon"] = nil
 
+LibLazyCrafting.craftingQueue = craftingQueue
+
 local craftResultFunctions = {[""]=function() end}
 
 LibLazyCrafting.functionTable = {}
@@ -181,28 +202,15 @@ end
 
 LibLazyCrafting.functionTable.findItemLocationById = findItemLocationById
 
--- Returns a table of [slot_index] --> stack count for each bag slot that holds
--- the requested item.
---
--- ALSO includes the first empty slot in bag, since there is still a chance
--- that this crafting attempt might start a new stack.
---
-function LibLazyCrafting.findSlotsContaining(itemLink, alsoIncludeFirstEmpty)
-	local wantItemName = GetItemLinkName(itemLink)
-
+-- Return current backpack inventory.
+function LibLazyCrafting.backpackInventory()
 	local r = {}
 	local bagId = BAG_BACKPACK
 	local maxSlotId = GetBagSize(bagId)
+	local total = 0 -- to help with debugging: did ANYTHING grow?
 	for slotIndex = 0, maxSlotId do
-		local slotLink = GetItemLink(bagId, slotIndex, LINK_STYLE_DEFAULT)
-		if GetItemLinkName(slotLink) == wantItemName then
-			r[slotIndex] = GetSlotStackSize(bagId, slotIndex)
-		end
-	end
-
-	if alsoIncludeFirstEmpty then
-		local emptySlotIndex = FindFirstEmptySlotInBag(bagId)
-		r[emptySlotIndex] = 0
+		r[slotIndex] = GetSlotStackSize(bagId, slotIndex)
+		total = total + r[slotIndex]
 	end
 	return r
 end
@@ -211,13 +219,19 @@ end
 -- Return nil if no stacks grew.
 --
 -- prevSlotsContaining and newSlotsContaining are expected to be
--- results from findSlotsContaining().
-function LibLazyCrafting.findIncreasedSlotIndex(prevSlotsContaining, newSlotsContaining)
-	for slotIndex, prevStackSize in pairs(prevSlotsContaining) do
-		local new = newSlotsContaining[slotIndex]
-		if new and prevStackSize < new then
-			return slotIndex
-		end
+-- results from backpackInventory().
+function LibLazyCrafting.findIncreasedSlotIndex(prevInventory, currInventory)
+	local maxSlotId = math.max(#prevInventory, #currInventory)
+	for slotIndex = 0, maxSlotId do
+		local prev = prevInventory[slotIndex]
+		local curr = currInventory[slotIndex]
+
+						-- Previously nil slot now non-nil
+						-- (can happen when #curr > #prev)
+		if curr and not prev then return slotIndex end
+
+						-- This stack increased.
+		if prev < curr then return slotIndex end
 	end
 	return nil
 end
@@ -229,22 +243,18 @@ function LibLazyCrafting.tableShallowCopy(t)
 	end
 	return a
 end
-
 -- clear a table in-place. Allows functions to clear out tables passed as a parameter.
 local function tableClear(t)
 	for k,_ in ipairs(t) do
 		t[k] = nil
 	end
 end
-
 -- Common code called by Alchemy and Provisioning crafting complete handlers.
 function LibLazyCrafting.stackableCraftingComplete(event, station, lastCheck, craftingType, currentCraftAttempt)
 	dbug("EVENT:CraftComplete")
 	if not (currentCraftAttempt and currentCraftAttempt.addon) then return end
-
-	local newSlots = LibLazyCrafting.findSlotsContaining(currentCraftAttempt.link, true)
-	local grewSlotIndex = LibLazyCrafting.findIncreasedSlotIndex(currentCraftAttempt.prevSlots, newSlots)
-
+	local currSlots = LibLazyCrafting.backpackInventory()
+	local grewSlotIndex = LibLazyCrafting.findIncreasedSlotIndex(currentCraftAttempt.prevSlots, currSlots)
 	if grewSlotIndex then
 		dbug("RESULT:StackableMade")
 		if currentCraftAttempt["timesToMake"] < 2 then
@@ -260,7 +270,6 @@ function LibLazyCrafting.stackableCraftingComplete(event, station, lastCheck, cr
 				["quantity"] = 1,
 				["reference"] = currentCraftAttempt.reference,
 			}
-
 			currentCraftAttempt.callback(LLC_CRAFT_SUCCESS, craftingType, resultTable)
 			tableClear(currentCraftAttempt)
 		else
@@ -270,13 +279,10 @@ function LibLazyCrafting.stackableCraftingComplete(event, station, lastCheck, cr
 			currentCraftAttempt.timesToMake = earliest.timesToMake
 			if GetCraftingInteractionType()==0 then zo_callLater(function() LibLazyCrafting.stackableCraftingComplete(event, station, true, craftingType, currentCraftAttempt) end,100) end
 		end
-
 	elseif lastCheck then
-
 		-- give up on finding it.
 		tableClear(currentCraftAttempt)
 	else
-
 		-- further search
 		-- search again later
 		if GetCraftingInteractionType()==0 then zo_callLater(function() LibLazyCrafting.stackableCraftingComplete(event, station, true, craftingType, currentCraftAttempt) end,100) end
@@ -432,10 +438,6 @@ function LibLazyCrafting:Init()
 		-- But can easily add 'if type(timestamp) ~= number then ignore end.' On the other hand, addons can mess with the timestamps, and change priority
 		LLCAddonInteractionTable["personalQueue"]  = craftingQueue[addonName]
 
-		-- Give add-on authors a way to check for required version beyond
-		-- "I hope LibStub returns what I asked for!"
-		LLCAddonInteractionTable["version"] = VERSION
-
 		-- Add all the functions to the interaction table!!
 		-- On the other hand, then addon devs can mess up the functions?
 
@@ -446,6 +448,10 @@ function LibLazyCrafting:Init()
 		craftResultFunctions[addonName] = functionCallback
 
 		LLCAddonInteractionTable.autocraft = autocraft
+
+		-- Give add-on authors a way to check for required version beyond
+		-- "I hope LibStub returns what I asked for!"
+		LLCAddonInteractionTable["version"] = VERSION
 
 		return LLCAddonInteractionTable
 	end
@@ -557,16 +563,24 @@ end
 -- which bypasses the event Manager, so that it is called first.
 
 local function CraftComplete(event, station)
+	--d("Event:completion")
 	local LLCResult = nil
 	for k,v in pairs(LibLazyCrafting.craftInteractionTables) do
 		if v["check"](station) then
 			if GetCraftingInteractionType()==0 then
+				--d("Calling exit complete, why???")
 				endInteraction(EVENT_END_CRAFTING_STATION_INTERACT, station)
 				zo_callLater(function() v["complete"](station) end, timetest)
 			else
-
-				v["complete"](station)
-				v["function"](station)
+				--d("calling complete")
+				if WritCrafter and WritCrafter.savedVarsAccountWide.masterDebugDelay then
+					zo_callLater(function()
+					v["complete"](station)
+					v["function"](station) end, 500)
+				else
+					v["complete"](station)
+					v["function"](station)
+				end
 			end
 		end
 	end
