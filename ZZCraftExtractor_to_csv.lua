@@ -68,7 +68,7 @@ function TableItemId(item_id_table)
 end
 
 OUT_FILE:write('"#set","station","pattern index","no trait","powered","charged","precise","infused","defending","training","sharpened","decisive","nirnhoned","item name"\n')
-OUT_FILE:write('"#","","","","sturdy","impenetrable","reinforced","well-fitted","training","infused","prosperous","divines","nirnhoned",""\n')
+OUT_FILE:write('"#","","","","sturdy","impenetrable","reinforced","well-fitted","training","infused","invigorating","divines","nirnhoned",""\n')
 -- For each account
 for k, v in pairs(ZZCraftExtractorVars["Default"]) do
     if (    ZZCraftExtractorVars["Default"][k]["$AccountWide"]
